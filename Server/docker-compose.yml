@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  service:
+    image: server
+    ports:
+      - 3000:3000
+
+  website:
+    image: client
+    ports:
+      - 5173:8080
+    depends_on:
+      - service
+    
