@@ -15,10 +15,4 @@ if [ ! -f "/usr/local/bin/docker-compose" ]; then
 fi
 
 # Download repository
-git clone https://github.com/Remmo1/terraform-tic-tac-toe.git /home/ec2-user/game
-
-# Make .gradlew file executable
-chmod +x /home/ec2-user/game/game/gradlew
-
-# Run docker-compose up
-sudo docker-compose -f /home/ec2-user/game/docker-compose.yaml up -d
+git clone https://github.com/MateuszPietrych/tic-tac-toe.git /home/ec2-user/game

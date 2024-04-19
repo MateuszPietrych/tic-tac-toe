@@ -2,14 +2,40 @@ version: '3'
 
 services:
   service:
-    image: server
+    build:
+      context: ./Server
+      dockerfile: Dockerfile
     ports:
       - 3000:3000
 
   website:
-    image: client
+    build:
+      context: ./Client
+      dockerfile: Dockerfile
     ports:
       - 5173:8080
     depends_on:
       - service
-    
+
+
+
+#    version: '3'
+
+# services:
+#   service:
+#     build:
+#       context: ./Server
+#       dockerfile: Dockerfile
+#     ports: 
+      
+# 3000:3000
+
+#   website:
+#     build:
+#       context: ./Client
+#       dockerfile: Dockerfile
+#     ports:
+      
+# 5173:8080
+#   depends_on:
+# service 
