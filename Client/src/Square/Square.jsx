@@ -67,6 +67,11 @@ const Square = ({
       return;
     }
 
+    if(currentElement === "circle" || currentElement === "cross")
+    {
+      return;
+    }
+
     if (!icon) {
       if (currentPlayer === "circle") {
         setIcon(circleSvg);

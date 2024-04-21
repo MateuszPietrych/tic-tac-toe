@@ -7,19 +7,24 @@ provider "aws" {
 # definiuje zasob typu "aws_instance", nazwa zasobu to "ec2_proj_1"
 resource "aws_instance" "ec2_proj_1_terraform" {
   # określa ID Amazon Machine Image (AMI), na podstawie którego zostanie utworzona instancja
-  ami                    = "ami-051f8a213df8bc089"
+  ami                    = "ami-080e1f13689e07408"
   # T2 instances are a low-cost, general purpose instance type that provides 
   # a baseline level of CPU performance with the ability to burst above the baseline when needed
   instance_type          = "t2.small"
   # określa nazwę klucza SSH, który ma być używany do uwierzytelniania połączenia z instancją.
   key_name               = "deploy"
   # określa, czy instancja ma mieć przypisany publiczny adres IP
-  associate_public_ip_address = true
+  #associate_public_ip_address = true
   # przypisana grupa zabepieczen
-  vpc_security_group_ids = [aws_security_group.security_group_proj_1_terraform.id]
+  #vpc_security_group_ids = [aws_security_group.security_group_proj_1_terraform.id]
 
   tags = {
     Name = "Ec2 Projekt 1 terraform"
+  }
+
+  network_interface {
+    device_index = 0
+    network_interface_id = aws_network_interface.interface_proj_1.id
   }
 
   # określa dane użytkownika, które mają zostać przekazane do instancji
@@ -64,6 +69,20 @@ resource "aws_internet_gateway" "internet_gateway_proj_1_terraform" {
   }
 }
 
+# create a network interface with private ip from step 4
+resource "aws_network_interface" "interface_proj_1" {
+  subnet_id = aws_subnet.subnet_proj_1_terraform.id
+  security_groups = [aws_security_group.security_group_proj_1_terraform.id]
+}
+
+# pozwala przypisa stae  IP
+resource "aws_eip" "terra_eip" {
+  vpc = true
+  network_interface = aws_network_interface.interface_proj_1.id
+  associate_with_private_ip = aws_network_interface.interface_proj_1.private_ip
+  depends_on = [aws_internet_gateway.internet_gateway_proj_1_terraform, aws_instance.ec2_proj_1_terraform]
+}
+
 resource "aws_route_table" "route_table_proj_1_terraform" {
   vpc_id = aws_vpc.vpc_proj_1_terraform.id
 
@@ -82,13 +101,15 @@ resource "aws_route_table" "route_table_proj_1_terraform" {
 }
 
 #  laczymy subnet z route table, odnoszac sie do wczesniej stworzonym elementow
-resource "aws_route_table_association" "subnet_proj_1_terraform" {
+resource "aws_route_table_association" "route_table_association_proj_1_terraform" {
   subnet_id      = aws_subnet.subnet_proj_1_terraform.id
   route_table_id = aws_route_table.route_table_proj_1_terraform.id
 }
 
 # security group w AWS to zestaw reguł zapory sieciowej, które kontrolują ruch do i z instancji EC2 lub innych zasobów sieciowych w AWS
 resource "aws_security_group" "security_group_proj_1_terraform" {
+
+  vpc_id      = aws_vpc.vpc_proj_1_terraform.id
   # (wychodzący) pozwala na cały ruch wychodzący (do wszystkich portów i protokołów) 
   # z instancji zabezpieczonej przez tę grupę do wszelkich adresów IP (0.0.0.0/0).
   egress {

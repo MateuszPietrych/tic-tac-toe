@@ -12,6 +12,7 @@ const allRooms = [];
 io.on("connection", (socket) => {
   allUsers[socket.id] = {
     socket: socket,
+    playing: false,
     online: true,
   };
 
@@ -30,6 +31,11 @@ io.on("connection", (socket) => {
     }
 
     if (opponentPlayer) {
+
+      opponentPlayer.playing =  true;
+      currentUser.playing = true;      
+
+
       allRooms.push({
         player1: opponentPlayer,
         player2: currentUser,
