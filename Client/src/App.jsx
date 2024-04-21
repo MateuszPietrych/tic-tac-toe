@@ -128,7 +128,7 @@ const App = () => {
     const username = result.value;
     setPlayerName(username);
 
-    const newSocket = io("http://54.162.85.16:3000", {
+    const newSocket = io("http://3.88.255.160:3000", {
       autoConnect: true,
     });
 
