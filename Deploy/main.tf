@@ -4,7 +4,7 @@ provider "aws" {
   profile = "default"
 }
 
-# definiuje zasob typu "aws_instance", nazwa zasobu to "ec2_proj_1"
+# definiuje zasob typu "aws_instance", nazwa zasobu to "ec2_proj_1_terraform"
 resource "aws_instance" "ec2_proj_1_terraform" {
   # określa ID Amazon Machine Image (AMI), na podstawie którego zostanie utworzona instancja
   ami                    = "ami-080e1f13689e07408"
@@ -69,13 +69,13 @@ resource "aws_internet_gateway" "internet_gateway_proj_1_terraform" {
   }
 }
 
-# create a network interface with private ip from step 4
+# pozwala na komuniacje miezy instancjami w VPC, nie potrzebuje tego, ale wymagane jest do stworzenia EIP
 resource "aws_network_interface" "interface_proj_1" {
   subnet_id = aws_subnet.subnet_proj_1_terraform.id
   security_groups = [aws_security_group.security_group_proj_1_terraform.id]
 }
 
-# pozwala przypisa stae  IP
+# pozwala przypisa stałe  IP
 resource "aws_eip" "terra_eip" {
   vpc = true
   network_interface = aws_network_interface.interface_proj_1.id
