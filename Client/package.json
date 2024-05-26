@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-login-page/page8": "^1.0.4",
+    "amazon-cognito-identity-js": "^6.3.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "socket.io-client": "^4.7.3",
@@ -23,6 +25,6 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "vite": "^5.0.8"
+    "vite": "^5.2.11"
   }
 }

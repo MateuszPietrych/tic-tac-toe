@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import Square from "./Square/Square";
 import { io } from "socket.io-client";
-import Swal from "sweetalert2";
+import LoginScreen from "./LoginPage";
+import { authenticate, getNick, refreshSession, logout } from "./authenticate";
 
 const renderFrom = [
   [1, 2, 3],
@@ -16,6 +17,7 @@ const App = () => {
   const [finishedState, setFinishetState] = useState(false);
   const [finishedArrayState, setFinishedArrayState] = useState([]);
   const [playOnline, setPlayOnline] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [socket, setSocket] = useState(null);
   const [playerName, setPlayerName] = useState("");
   const [opponentName, setOpponentName] = useState(null);
@@ -71,23 +73,31 @@ const App = () => {
     const winner = checkWinner();
     if (winner) {
       setFinishetState(winner);
+      if(playingAs === 'circle')
+        {
+      if (winner === playingAs) {
+        socket.emit("end_game", {
+          player1: playerName,
+          player2: opponentName,
+          winner: playerName,
+        });
+  
+      } else if (winner === "draw") {
+        socket.emit("end_game", {
+          player1: playerName,
+          player2: opponentName,
+          winner: "draw",
+        });
+      } else {
+        socket.emit("end_game", {
+          player1: playerName,
+          player2: opponentName,
+          winner: opponentName,
+        });
+      }
     }
+  }
   }, [gameState]);
-
-  const takePlayerName = async () => {
-    const result = await Swal.fire({
-      title: "Enter your name",
-      input: "text",
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (!value) {
-          return "You need to write something!";
-        }
-      },
-    });
-
-    return result;
-  };
 
   socket?.on("opponentLeftMatch", () => {
     setFinishetState("opponentLeftMatch");
@@ -119,17 +129,18 @@ const App = () => {
   });
 
   async function playOnlineClick() {
-    const result = await takePlayerName();
-
-    if (!result.isConfirmed) {
-      return;
-    }
-
-    const username = result.value;
+    const username = getNick();
     setPlayerName(username);
 
-    const newSocket = io("http://54.166.213.253:3000", {
+    //console.log(process.env.GLOBAL_IP);
+    const socket_io_address = "http://localhost:3000"
+
+    refreshSession();
+    const newSocket = io(socket_io_address, {
       autoConnect: true,
+      extraHeaders: {
+        "token": localStorage.getItem('token')
+      }
     });
 
     newSocket?.emit("request_to_play", {
@@ -139,12 +150,32 @@ const App = () => {
     setSocket(newSocket);
   }
 
+  const handleLogout=()=>{
+    logout();
+    setLoggedIn(false);
+    localStorage.removeItem('token');
+  };
+
+  if (!loggedIn || localStorage.getItem('token') === null) {
+    console.log("logged in: " + loggedIn);
+   return (<LoginScreen setLoggedIn={setLoggedIn}/>)
+  }
+
   if (!playOnline) {
     return (
       <div className="main-div">
+        <h1 className="game-heading water-background">Tic Tac Toe</h1>
         <button onClick={playOnlineClick} className="playOnline">
-          Play Online
+          Play
         </button>
+        <button
+            style={{margin:"10px"}}
+            variant='contained'
+            onClick={handleLogout}
+            className="logout"
+          >
+            Logout
+          </button>
       </div>
     );
   }
@@ -153,12 +184,29 @@ const App = () => {
     return (
       <div className="waiting">
         <p>Waiting for opponent</p>
+        <button
+            style={{margin:"10px", marginLeft:"50px"}}
+            variant='contained'
+            onClick={handleLogout}
+            className="logout"
+          >
+            Logout
+          </button>
       </div>
     );
   }
 
   return (
     <div className="main-div">
+      <button
+            style={{margin:"10px"}}
+            variant='contained'
+            onClick={handleLogout}
+            className="logout"
+          >
+            Logout
+          </button>
+      <h1 className="game-heading water-background">Tic Tac Toe</h1>
       <div className="move-detection">
         <div
           className={`left ${
@@ -176,7 +224,6 @@ const App = () => {
         </div>
       </div>
       <div>
-        <h1 className="game-heading water-background">Tic Tac Toe</h1>
         <div className="square-wrapper">
           {gameState.map((arr, rowIndex) =>
             arr.map((e, colIndex) => {
@@ -202,21 +249,21 @@ const App = () => {
           finishedState !== "opponentLeftMatch" &&
           finishedState !== "draw" && (
             <h3 className="finished-state">
-              {finishedState === playingAs ? "You " : finishedState} won the
+              {finishedState === playingAs ? "You won" : "You lost"}  the
               game
             </h3>
           )}
         {finishedState &&
           finishedState !== "opponentLeftMatch" &&
           finishedState === "draw" && (
-            <h3 className="finished-state">It's a Draw</h3>
+            <h3 className="finished-state">Draw</h3>
           )}
       </div>
       {!finishedState && opponentName && (
-        <h2>You are playing against {opponentName}</h2>
+        <h2>You are playing as {playingAs}</h2>
       )}
       {finishedState && finishedState === "opponentLeftMatch" && (
-        <h2>You won the match, Opponent has left</h2>
+        <h2>Opponent has left</h2>
       )}
     </div>
   );
