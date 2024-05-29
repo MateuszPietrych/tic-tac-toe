@@ -133,7 +133,10 @@ const App = () => {
     setPlayerName(username);
 
     //console.log(process.env.GLOBAL_IP);
-    const socket_io_address = "http://localhost:3000"
+
+    const BACKEND_URL = window.location.protocol + "//" + window.location.hostname + ":3000";
+
+    const socket_io_address = BACKEND_URL;//"http://localhost:3000"
 
     refreshSession();
     const newSocket = io(socket_io_address, {

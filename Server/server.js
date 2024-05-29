@@ -3,6 +3,7 @@ const { Server } = require("socket.io");
 const {saveGameResult} = require("./database.js");
 
 const httpServer = createServer();
+
 const io = new Server(httpServer, {
   cors: "http://localhost:5173/",
 });

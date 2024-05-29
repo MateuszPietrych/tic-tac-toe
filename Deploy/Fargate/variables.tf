@@ -29,7 +29,7 @@ variable "ecs_auto_scale_role_name" {
 // które mają być używane, na przykład w przypadku tworzenia zasobów takich jak VPC, subnets, czy grupy autoskalowania.
 variable "az_count" {
     description = "Number of AZs to cover in a given region"
-    default = "1"
+    default = "2"
 }
 
 
